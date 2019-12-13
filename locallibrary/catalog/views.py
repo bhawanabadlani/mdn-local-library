@@ -1,6 +1,21 @@
 from django.shortcuts import render
 from catalog.models import Author, Book, BookInstance, Genre
+from django.views import generic
 # Create your views here.
+
+class BookListView(generic.ListView):
+    model = Book
+    paginate_by = 10
+
+class BookDetailView(generic.DetailView):
+    model = Book
+
+class AuthorListView(generic.ListView):
+    model = Author
+    paginate_by = 10
+
+class AuthorDetailView(generic.DetailView):
+    model = Author
 
 def index(request):
     """View function for the homepage site"""
