@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Genre, Book, BookInstance, Author, Language
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 #Define the admin class
 
@@ -27,7 +28,7 @@ class BookAdmin(admin.ModelAdmin):
 # Register the admin class for BookInstance using the decorator
 @admin.register(BookInstance)
 class BookInstanceAdmin(admin.ModelAdmin):
-    list_display = ('book', 'status', 'due_back', 'id')
+    list_display = ('book', 'status', 'borrower', 'due_back', 'id')
     list_filter = ('status', 'due_back')
     
     fieldsets = (
@@ -35,13 +36,6 @@ class BookInstanceAdmin(admin.ModelAdmin):
             'fields': ('book', 'imprint', 'id')
         }),
         ('Availability', {
-            'fields': ('status', 'due_back')
+            'fields': ('status', 'due_back', 'borrower')
         }),
     )
-
-
-# admin.site.register(Book)
-# admin.site.register(Language)
-# admin.site.register(Author)
-# admin.site.register(Genre)
-# admin.site.register(BookInstance)

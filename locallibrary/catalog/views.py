@@ -1,7 +1,27 @@
 from django.shortcuts import render
 from catalog.models import Author, Book, BookInstance, Genre
 from django.views import generic
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+
 # Create your views here.
+class LoanedBooksByUserListView(LoginRequiredMixin,generic.ListView):
+    """Generic class-based view listing books on loan to current user."""
+    model = BookInstance
+    template_name ='catalog/bookinstance_list_borrowed_user.html'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        return BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='o').order_by('due_back')
+
+class LoanedBooksByAllUsersListView(LoginRequiredMixin,generic.ListView):
+    """Generic class-based view listing books on loan to current user."""
+    model = BookInstance
+    template_name ='catalog/bookinstance_list_borrowed_by_all.html'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        return BookInstance.objects.filter(status__exact='o').order_by('due_back')
 
 class BookListView(generic.ListView):
     model = Book
@@ -29,19 +49,19 @@ def index(request):
 
     # The all() is implied by default.
     num_authors = Author.objects.count()
-    
-    # Genres and Books that contain a particular word(case insensitive)
-    num_books_title_like = Book.objects.filter(title__icontains="self").count()
-    num_genres_like = Genre.objects.filter(name__icontains="fanta").count()
+
+    # Number of visits to this view, as counted in the session variable.
+    num_visits = request.session.get('num_visits', 0)
+    request.session['num_visits'] = num_visits + 1
 
     context = {
-        'num_books': num_books, 
+        'num_books': num_books,
         'num_instances': num_instances,
         'num_instances_available': num_instances_available,
         'num_authors': num_authors,
-        'num_books_title_like': num_books_title_like,
-        'num_genres_like': num_genres_like,
+        'num_visits': num_visits,
     }
+    
 
     # Render the HTML template with the data in the context variable
     return render(request, 'catalog/index.html', context=context)
